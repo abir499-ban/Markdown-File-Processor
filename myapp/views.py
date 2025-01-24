@@ -4,6 +4,7 @@ from rest_framework import response
 from myapp.serializers import FileSerializers
 from myapp.models import MarkdownFile
 import markdown
+from datetime import datetime
 
 
 # Create your views here.
@@ -12,8 +13,16 @@ class FilesView(generics.GenericAPIView):
     queryset = MarkdownFile.objects.all()
 
     def post(self, request):
+        original_name = request.data.get('name')
+        modified_name = original_name + "".join(str(datetime.now()).split(' '))
+        file_creation_DTO = {
+            "name" : modified_name,
+            "content" : request.data.get("content")
+        }
+        
         try:
-            serializer = self.serializer_class(data=request.data)
+
+            serializer = self.serializer_class(data=file_creation_DTO)
             if serializer.is_valid():
                 serializer.save()
                 return response.Response(
