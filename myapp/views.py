@@ -1,27 +1,30 @@
 from django.shortcuts import render
 from rest_framework import status, generics
 from rest_framework import response
-from myapp.serializers import FileSerailizers
+from myapp.serializers import FileSerializers
 from myapp.models import MarkdownFile
 import markdown
 
 
 # Create your views here.
 class FilesView(generics.GenericAPIView):
-    serializer_class = FileSerailizers
+    serializer_class = FileSerializers
     queryset = MarkdownFile.objects.all()
 
     def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return response.Response(
-                {
-                    "message": "Markdown file content saveds uccesfully",
-                    "data": serializer.data,
-                },
-                status=status.HTTP_201_CREATED,
-            )
+        try:
+            serializer = self.serializer_class(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return response.Response(
+                    {
+                        "message": "Markdown file content saved succesfully",
+                        "data": serializer.data,
+                    },
+                    status=status.HTTP_201_CREATED,
+                )
+        except Exception as e:
+            print(e)
         
     def get(self, request):
         try:
@@ -35,7 +38,7 @@ class FilesView(generics.GenericAPIView):
 
 
 class MarkdownParser(generics.GenericAPIView):
-    serializer_class = FileSerailizers
+    serializer_class = FileSerializers
 
     def post(self, request):
         try:
