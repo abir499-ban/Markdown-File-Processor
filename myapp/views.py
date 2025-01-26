@@ -37,7 +37,8 @@ class FilesView(generics.GenericAPIView):
         
     def get(self, request):
         try:
-            serializer = self.serializer_class(self.queryset, many=True)
+            queryset = self.get_queryset()  
+            serializer = self.serializer_class(queryset, many=True)
             return response.Response({"message" : "Fetched all Md files ", "data" : serializer.data},
                                      status=status.HTTP_200_OK)
         except Exception as e:
