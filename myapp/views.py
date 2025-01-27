@@ -5,6 +5,7 @@ from myapp.serializers import FileSerializers
 from myapp.models import MarkdownFile
 import markdown
 from datetime import datetime
+from myapp.dbConfig import create_connection
 
 
 # Create your views here.
@@ -37,12 +38,26 @@ class FilesView(generics.GenericAPIView):
         
     def get(self, request):
         try:
-            queryset = self.get_queryset()  
-            serializer = self.serializer_class(queryset, many=True)
-            return response.Response({"message" : "Fetched all Md files ", "data" : serializer.data},
-                                     status=status.HTTP_200_OK)
+            conn = create_connection()
+            cursor = conn.cursor()
+            
+           
+            cursor.execute("SELECT id, name, content FROM files")
+            rows = cursor.fetchall()  
+
+            
+
+            conn.close()  
+
+            return response.Response(
+                {"message": "Fetched all files using raw SQL and sqlite3", "data": rows},
+                status=status.HTTP_200_OK,
+            )
         except Exception as e:
-            return response.Response({"message" : "Failed to fetch Md files", "error" : str(e)})
+            return response.Response(
+                {"message": "Failed to fetch files", "error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 ##todo:add the routes for HTML rendering and Grammar checking
 
