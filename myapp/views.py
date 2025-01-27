@@ -13,7 +13,7 @@ class FilesView(generics.GenericAPIView):
     serializer_class = FileSerializers
     queryset = MarkdownFile.objects.all()
 
-    def post(self, request):
+    def post(self, request, id=None):
         original_name = request.data.get('name')
         modified_name = original_name + "".join(str(datetime.now()).split(' '))
         file_creation_DTO = {
@@ -36,29 +36,57 @@ class FilesView(generics.GenericAPIView):
         except Exception as e:
             print(e)
         
-    def get(self, request):
-        try:
-            conn = create_connection()
-            cursor = conn.cursor()
+
+
+    def get(self, request, id=None):
+        if id is None:
+            try:
+                conn = create_connection()
+                cursor = conn.cursor()
             
            
-            cursor.execute("SELECT id, name, content FROM files")
-            rows = cursor.fetchall()  
+                cursor.execute("SELECT id, name, content,createdAt FROM files")
+                rows = cursor.fetchall()  
 
             
+            
 
-            conn.close()  
+                conn.close()  
 
-            return response.Response(
-                {"message": "Fetched all files using raw SQL and sqlite3", "data": rows},
-                status=status.HTTP_200_OK,
-            )
-        except Exception as e:
-            return response.Response(
-                {"message": "Failed to fetch files", "error": str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+                return response.Response(
+                    {"message": "Fetched all files using raw SQL and sqlite3", "data": rows},
+                    status=status.HTTP_200_OK,
+                )
+            except Exception as e:
+                return response.Response(
+                    {"message": "Failed to fetch files", "error": str(e)},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+        else:
+            try:
+                conn = create_connection()
+                cursor = conn.cursor()
+                formatted_id = id.replace('-', '')
 
+                cursor.execute("SELECT id, name, content, createdAt FROM files WHERE id=?", (formatted_id,))
+                rows = cursor.fetchall()
+
+                conn.close()
+
+                if rows:
+                    return response.Response(
+                        {"message": "File fetched successfully", "data": rows},
+                        status=status.HTTP_200_OK,
+                    )
+                else:
+                    return response.Response(
+                        {"message": "File not found"}, status=status.HTTP_404_NOT_FOUND
+                    )
+            except Exception as e:
+                return response.Response(
+                    {"message": "Failed to fetch file", "error": str(e)},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
 ##todo:add the routes for HTML rendering and Grammar checking
 
 
