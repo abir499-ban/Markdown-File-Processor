@@ -13,7 +13,7 @@ class FilesView(generics.GenericAPIView):
     serializer_class = FileSerializers
     queryset = MarkdownFile.objects.all()
 
-    def post(self, request, id=None):
+    def post(self, request):
         original_name = request.data.get('name')
         modified_name = original_name + "".join(str(datetime.now()).split(' '))
         file_creation_DTO = {
@@ -38,19 +38,12 @@ class FilesView(generics.GenericAPIView):
         
 
 
-    def get(self, request, id=None):
-        if id is None:
+    def get(self, request):
             try:
                 conn = create_connection()
-                cursor = conn.cursor()
-            
-           
+                cursor = conn.cursor()                    
                 cursor.execute("SELECT id, name, content,createdAt FROM files")
-                rows = cursor.fetchall()  
-
-            
-            
-
+                rows = cursor.fetchall()            
                 conn.close()  
 
                 return response.Response(
@@ -62,32 +55,28 @@ class FilesView(generics.GenericAPIView):
                     {"message": "Failed to fetch files", "error": str(e)},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
-        else:
-            try:
-                conn = create_connection()
-                cursor = conn.cursor()
-                formatted_id = id.replace('-', '')
+        
+##todo:add the routes for HTML rendering and Grammar checking
 
-                cursor.execute("SELECT id, name, content, createdAt FROM files WHERE id=?", (formatted_id,))
-                rows = cursor.fetchall()
+class FileswithParams(generics.GenericAPIView):
+    serializer_class = FileSerializers
+    def get(self, request, id=None):
+        try:
+            conn = create_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM files WHERE id=?" , (id,))
+            rows = cursor.fetchall()
+            conn.close()
 
-                conn.close()
-
-                if rows:
-                    return response.Response(
-                        {"message": "File fetched successfully", "data": rows},
-                        status=status.HTTP_200_OK,
-                    )
-                else:
-                    return response.Response(
-                        {"message": "File not found"}, status=status.HTTP_404_NOT_FOUND
-                    )
-            except Exception as e:
-                return response.Response(
-                    {"message": "Failed to fetch file", "error": str(e)},
+            return response.Response(
+                {'data' : rows}, status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            return response.Response(
+                    {"message": "Failed to fetch files", "error": str(e)},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
-##todo:add the routes for HTML rendering and Grammar checking
+
 
 
 class MarkdownParser(generics.GenericAPIView):

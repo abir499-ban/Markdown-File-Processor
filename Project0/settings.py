@@ -26,7 +26,8 @@ SECRET_KEY = 'django-insecure-dkwzoq&^sxc8d!_6$qemh9lmfox)63t5wy#sr=!ng+!j+mizf%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+
 
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -41,8 +42,8 @@ CORS_ALLOWED_METHODS = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',  
-    'https://yourfrontenddomain.com',  
+    'http://localhost:5173',  # Vite frontend
+    'http://localhost:3000',  # React frontend
 ]
 
 
@@ -63,6 +64,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -70,7 +72,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',  
 ]
 
 ROOT_URLCONF = 'Project0.urls'
