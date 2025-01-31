@@ -6,6 +6,10 @@ from myapp.models import MarkdownFile
 import markdown
 from datetime import datetime
 from myapp.dbConfig import create_connection
+import os
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+from django.conf import settings 
 
 
 # Create your views here.
@@ -91,4 +95,25 @@ class MarkdownParser(generics.GenericAPIView):
                 return response.Response({"message" : "Markdown file", "data" : html_content}, status=status.HTTP_200_OK)
         except Exception as e:
             return response.Response({"message":f"Error {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class FileUpload(generics.GenericAPIView):
+    directory = os.path.join(settings.BASE_DIR , 'uploads')
+    os.makedirs(directory, exist_ok=True)
+
+    def post(self, request):
+        if 'file' not in request.FILES:
+            return response.Response({"message" : "no file provided"},status=status.HTTP_400_BAD_REQUEST)
+        
+        uploaded_file = request.FILES['file']
+        file_name  = uploaded_file.name
+        pos = "".join(reversed(file_name)).count('.')
+        file_name  = file_name[:len(file_name) - pos - 1]
+        uniques_filname = file_name + "_" + datetime.now().strftime("%Y%m%d_%H%M%S")  + ".md"
+
+        file_path = os.path.join(self.directory, uniques_filname)
+        default_storage.save(file_path, ContentFile(uploaded_file.read()))
+
+        return response.Response({"message" : "File Upload Successfully!", "filename" : uniques_filname})
+
 
