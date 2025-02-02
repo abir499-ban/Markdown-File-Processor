@@ -48,7 +48,12 @@ class FilesView(generics.GenericAPIView):
                 cursor = conn.cursor()                    
                 cursor.execute("SELECT id, name, content,createdAt FROM files")
                 rows = cursor.fetchall()            
-                conn.close()  
+                conn.close() 
+
+                FileUploadObj = FileUpload()
+                fileUploaded = FileUploadObj.get()["data"]
+                rows.extend(fileUploaded)
+               
 
                 return response.Response(
                     {"message": "Fetched all files using raw SQL and sqlite3", "data": rows},
@@ -107,7 +112,7 @@ class FileUpload(generics.GenericAPIView):
         
         uploaded_file = request.FILES['file']
         file_name  = uploaded_file.name
-        pos = "".join(reversed(file_name)).count('.')
+        pos = "".join(reversed(file_name)).find('.')
         file_name  = file_name[:len(file_name) - pos - 1]
         uniques_filname = file_name + "_" + datetime.now().strftime("%Y%m%d_%H%M%S")  + ".md"
 
@@ -116,4 +121,12 @@ class FileUpload(generics.GenericAPIView):
 
         return response.Response({"message" : "File Upload Successfully!", "filename" : uniques_filname})
 
-
+    def get(self, request=None):
+        try:
+            files = os.listdir(self.directory)
+            file_info = []
+            for file in files:
+                file_info.append([file, "localFile"])
+            return {"data" : file_info}
+        except FileExistsError as e:
+            return response.Response({"error" : e})
