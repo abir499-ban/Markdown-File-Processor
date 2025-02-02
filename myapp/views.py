@@ -10,6 +10,7 @@ import os
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.conf import settings 
+from myapp.utils import extract_datetime_fromFileName
 
 
 # Create your views here.
@@ -138,7 +139,9 @@ class FileUpload(generics.GenericAPIView):
                 if os.path.exists(filePath):
                     with open(filePath, 'r') as file:
                         content = file.read()
-                    return response.Response({"message" : "File from local device fetched successfully", "data" : content}, status=status.HTTP_200_OK)
+                    extracted_date = extract_datetime_fromFileName(fileName)
+                    file_info = ['random_id_1234', fileName , content , extracted_date]
+                    return response.Response({"message" : "Data fetched", "data" : file_info})
             
             except Exception as e:
                 return response.Response({"error" : e})
