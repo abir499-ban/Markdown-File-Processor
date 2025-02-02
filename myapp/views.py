@@ -121,12 +121,25 @@ class FileUpload(generics.GenericAPIView):
 
         return response.Response({"message" : "File Upload Successfully!", "filename" : uniques_filname})
 
-    def get(self, request=None):
-        try:
-            files = os.listdir(self.directory)
-            file_info = []
-            for file in files:
-                file_info.append([file, "localFile"])
-            return {"data" : file_info}
-        except FileExistsError as e:
-            return response.Response({"error" : e})
+    def get(self, request=None, fileName=None):
+        if fileName == None:
+            try:
+                files = os.listdir(self.directory)
+                file_info = []
+                for file in files:
+                    file_info.append([file, 'localfile'])
+                return {"data" : file_info}
+            except Exception as e:
+                return response.Response({"error" : e})
+        else:
+            filePath = os.path.join(self.directory , fileName)
+            try:
+                content = 'Not Found'
+                if os.path.exists(filePath):
+                    with open(filePath, 'r') as file:
+                        content = file.read()
+                    return response.Response({"message" : "File from local device fetched successfully", "data" : content}, status=status.HTTP_200_OK)
+            
+            except Exception as e:
+                return response.Response({"error" : e})
+
