@@ -6,7 +6,8 @@ class mdParser:
             (r'^#{1,6}', self.__parse_header),
             (r'\*\*.*\*\*' , self.__parse_boldText),
             (r'\*.*\*' , self.__parse_italicText),
-            (r'\>.*' , self.__parse_blockquote)
+            (r'\>.*' , self.__parse_blockquote),
+            (r'^-+$' , self.__parse_hr)
         ]
 
         pass
@@ -53,6 +54,9 @@ class mdParser:
         string  = match.group()
         l = len(string)
         return f"<blockquote><p>{string[1:l]}</p></blockquote>"
+    
+    def __parse_hr(self, match , text):
+        return "<hr>"
 
 pass
 
@@ -62,7 +66,7 @@ obj = mdParser()
 # obj.main("""# Guide on how to set up the repo.
 # **You must have node package manager installed**.
 # * version should be more that 6.1.7*
-
+# ---------------
 # Run this command
 # >npm i express""")
 
