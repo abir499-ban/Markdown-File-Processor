@@ -10,6 +10,9 @@ class mdParser:
             (r'^-+$' , self.__parse_hr),
             (r'^\s*(\*|\-|\+)\s+(.*)$', self.__parse_unordered_list),
             (r'^\s*(\d+)\.\s+(.*)$', self.__parse_ordered_list),
+            (r'\`.*\`', self.__parse_code_block),
+            (r'\[(.*?)\]\((https?:\/\/.*?)\)' , self.__parse_link)
+            
         ]
         self.in_ordered_list = False
         self.in_unordered_list = False
@@ -67,18 +70,34 @@ class mdParser:
 
     def __parse_ordered_list(self, match , text):
         pass
+    
+    def __parse_code_block(self, match, text):
+        string = match.group()
+        return f"<code>{string[1 : -1]}</code>"
+    
+    def __parse_link(self, match , text):
+        alt = match.group(1)
+        link = match.group(2)
+        return f"<a href='{link}'>{alt}</a>"
+    
+   
 
 pass
 
 obj = mdParser()
 ##obj.main('## this is a header')
-##obj.main('*read carefully *')
+#obj.main('*read carefully *')
 # obj.main("""# Guide on how to set up the repo.
 # **You must have node package manager installed**.
 # * version should be more that 6.1.7*
 # ---------------
 # Run this command
-# >npm i express""")
+# >npm i express
+# `npm run init`
+#""")
+
+obj.main("[Google](https://www.google.com)")
+
 
 
 
