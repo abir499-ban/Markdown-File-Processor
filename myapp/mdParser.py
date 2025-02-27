@@ -7,8 +7,12 @@ class mdParser:
             (r'\*\*.*\*\*' , self.__parse_boldText),
             (r'\*.*\*' , self.__parse_italicText),
             (r'\>.*' , self.__parse_blockquote),
-            (r'^-+$' , self.__parse_hr)
+            (r'^-+$' , self.__parse_hr),
+            (r'^\s*(\*|\-|\+)\s+(.*)$', self.__parse_unordered_list),
+            (r'^\s*(\d+)\.\s+(.*)$', self.__parse_ordered_list),
         ]
+        self.in_ordered_list = False
+        self.in_unordered_list = False
 
         pass
 
@@ -57,6 +61,12 @@ class mdParser:
     
     def __parse_hr(self, match , text):
         return "<hr>"
+    
+    def __parse_unordered_list(self, match ,  text):
+        pass
+
+    def __parse_ordered_list(self, match , text):
+        pass
 
 pass
 
