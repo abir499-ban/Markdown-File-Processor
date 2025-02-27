@@ -11,7 +11,8 @@ class mdParser:
             (r'^\s*(\*|\-|\+)\s+(.*)$', self.__parse_unordered_list),
             (r'^\s*(\d+)\.\s+(.*)$', self.__parse_ordered_list),
             (r'\`.*\`', self.__parse_code_block),
-            (r'\[(.*?)\]\((https?:\/\/.*?)\)' , self.__parse_link)
+            (r'\[(.*?)\]\((https?:\/\/.*?)\)' , self.__parse_link),
+            (r'!\[(.*?)\]\((.*?)\)' , self.__parse_image)
             
         ]
         self.in_ordered_list = False
@@ -79,6 +80,12 @@ class mdParser:
         alt = match.group(1)
         link = match.group(2)
         return f"<a href='{link}'>{alt}</a>"
+
+    
+    def __parse_image(self , match , text):
+        alt = match.group(1)
+        image_src = match.group(2)
+        return f"<image alt='{alt}' src='{image_src}' />"
     
    
 
@@ -96,7 +103,7 @@ obj = mdParser()
 # `npm run init`
 #""")
 
-obj.main("[Google](https://www.google.com)")
+obj.main("![Google](/assets/public/image.png)")
 
 
 
